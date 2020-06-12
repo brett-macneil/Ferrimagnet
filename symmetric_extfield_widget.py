@@ -17,7 +17,7 @@ from scipy.optimize import fsolve
 ###______________________________________________________________
 
 # Generate figure
-fig, [ax1, ax2] = plt.subplots(1, 2)
+fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,11.25))
 plt.subplots_adjust(bottom=0.25)
 plt.style.use('dark_background')
 plt.style.use('lab')

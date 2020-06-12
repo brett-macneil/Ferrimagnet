@@ -8,7 +8,7 @@ Created on Wed Jun 10 2020
 
 import numpy as np
 import matplotlib.pyplot as plt 
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 from scipy.optimize import fsolve
 #import time
 
@@ -125,7 +125,7 @@ def get_mag(T_min, T_max, numpoints, lambda_ab, kilo=True):
     return (Tvec, Ma, Mb)
 
 
-### Sliders
+### Sliders and buttons
 ###______________________________________________________________
 
 # Coupling constant
@@ -145,6 +145,11 @@ T_min = 1.
 T_sl = Slider(T_loc, label=r'$T$ (K)', valmin=T_min, valmax=T_max, \
               valinit=T_init)
 T_sl.label.set_size(16)
+
+# Reset button
+rst_loc = plt.axes([0.125, 0.9, 0.075, 0.05])
+rst_button = Button(rst_loc, 'Reset', color='C4', hovercolor='C3')
+rst_button.label.set_size(16)
 
     
 ### Plots
@@ -175,7 +180,7 @@ ax1.legend([r'Sublattice a', 'Sublattice b'], loc=1, fontsize=16)
 ax2.legend([r'Sublattice a', 'Sublattice b', 'Total'], loc=1, fontsize=16)
 
 
-### Updates
+### Slider and button updates
 ###______________________________________________________________
 
 def update(val):
@@ -199,8 +204,15 @@ def update(val):
     Temp_line.set_xdata([T_new,T_new])
     Temp_line.set_ydata([Mag_min_new, Mag_max_new])
     
+    
+def reset(event):
+    lam_ab_sl.reset()
+    T_sl.reset()
+
 
 lam_ab_sl.on_changed(update)
 T_sl.on_changed(update)
+rst_button.on_clicked(reset)
+
 fig.canvas.draw_idle()
 fig.show()

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jun 12 11:24:50 2020
+Created on Fri Jun 12 2020
 
 @author: Brett
 """
 
 import numpy as np
 import matplotlib.pyplot as plt 
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, Button
 from scipy.optimize import fsolve
 #import time
 
@@ -33,7 +33,7 @@ ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
 ### Constants
 ###______________________________________________________________
 
-numpoints = 50           # Number of points used in equation solver
+numpoints = 75           # Number of points used in equation solver
 
 # Physical constants
 mu0 = 4*np.pi*1e-7        # Permeability of free space
@@ -128,7 +128,7 @@ def get_mag(T_min, T_max, numpoints, lambda_ab, H, kilo=True, bfield=True):
     return (Tvec, Ma, Mb)
 
 
-### Sliders
+### Sliders and buttons
 ###______________________________________________________________
 
 # Coupling constant
@@ -157,6 +157,11 @@ H_min = -10.
 H_sl = Slider(H_loc, label=r'$\mu_{0}H$ (T)', valmin=H_min, valmax=H_max, \
               valinit=H_init)
 H_sl.label.set_size(16)
+
+# Reset button
+rst_loc = plt.axes([0.125, 0.9, 0.075, 0.05])
+rst_button = Button(rst_loc, 'Reset', color='C4', hovercolor='C3')
+rst_button.label.set_size(16)
     
 ### Plots
 ###______________________________________________________________
@@ -213,8 +218,15 @@ def update(val):
     Temp_line.set_ydata([Mag_min_new, Mag_max_new])
     
 
+def reset(event):
+    lam_ab_sl.reset()
+    T_sl.reset()
+    
+
 H_sl.on_changed(update)
 lam_ab_sl.on_changed(update)
 T_sl.on_changed(update)
+rst_button.on_clicked(reset)
+
 fig.canvas.draw_idle()
 fig.show()

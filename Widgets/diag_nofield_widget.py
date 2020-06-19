@@ -184,7 +184,7 @@ Ma_scale = np.linspace(-Ma_max, Ma_max, numpoints)
 Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
 
 Ma_curve = mag_eq_a(Ma_scale, Mb_scale, lam_aa_init, lam_ab_init, T_init, H)
-Mb_curve = mag_eq_a(Ma_scale, Mb_scale, lam_bb_init, lam_ba_init, T_init, H)
+Mb_curve = mag_eq_b(Ma_scale, Mb_scale, lam_bb_init, lam_ba_init, T_init, H)
 
 Ma_plot1, = ax1.plot(Mb_scale/1e3, Ma_curve/1e3, color='cyan')
 Mb_plot1, = ax1.plot(Mb_curve/1e3, Ma_scale/1e3, color='orange')

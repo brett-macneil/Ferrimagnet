@@ -33,8 +33,8 @@ ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
 ### Constants
 ###______________________________________________________________
 
-numpoints = int(2e2)           # Number of points used in equation solver
-H = 0                     # We
+numpoints = 500           # Number of points used in equation solver
+H = 0                     # Set H=0 for simpicity later
 
 # Physical constants
 mu0 = 4*np.pi*1e-7        # Permeability of free space
@@ -87,6 +87,13 @@ def brillouin(y, J):
     B[~m] = ((2*J+1)**2/J**2/12-1/J**2/12)*y[~m]
     
     return B
+
+
+def get_intersect(z1, z2):
+    diff = np.sign(z2-z1)
+    c = plt.contour(diff)
+    data = c.allsegs[0][0]
+    return ( data[:, 0], data[:, 1] )
 
 
 def mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H):
@@ -183,11 +190,15 @@ T_sl.label.set_size(16)
 Ma_scale = np.linspace(-Ma_max, Ma_max, numpoints)
 Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
 
-Ma_curve = mag_eq_a(Ma_scale, Mb_scale, lam_aa_init, lam_ab_init, T_init, H)
-Mb_curve = mag_eq_b(Ma_scale, Mb_scale, lam_bb_init, lam_ba_init, T_init, H)
+Ma_grid, Mb_grid = np.meshgrid(Ma_scale, Mb_scale)
 
-Ma_plot1, = ax1.plot(Mb_scale/1e3, Ma_curve/1e3, color='cyan')
-Mb_plot1, = ax1.plot(Mb_curve/1e3, Ma_scale/1e3, color='orange')
+Ma_surf = mag_eq_a(Ma_grid, Mb_grid, lam_aa_init, lam_ab_init, T_init, H)
+Mb_surf = mag_eq_b(Ma_grid, Mb_grid, lam_bb_init, lam_ba_init, T_init, H)
+a_self_x, a_self_y = get_intersect(Ma_grid, Ma_surf)
+b_self_x, b_self_y = get_intersect(Mb_grid, Mb_surf)
+
+Ma_plot1, = ax1.plot(a_self_x, a_self_y, color='cyan')
+Mb_plot1, = ax1.plot(b_self_x, b_self_y, color='orange')
 
 # Magnetization-temperature subplot (Right, axis 2)
 lam_init = [lam_aa_init, lam_bb_init, lam_ab_init, lam_ba_init]
@@ -217,10 +228,15 @@ def update(val):
     T_new = T_sl.val
     
     # Update axis 1
-    Ma_curve_new = mag_eq_a(Ma_scale, Mb_scale, lam_aa_new, lam_ab_new, T_new, H)
-    Mb_curve_new = mag_eq_a(Ma_scale, Mb_scale, lam_bb_new, lam_ba_new, T_new, H)
-    Ma_plot1.set_ydata(Ma_curve_new/1e3)
-    Mb_plot1.set_xdata(Mb_curve_new/1e3)
+    Ma_surf_new = mag_eq_a(Ma_grid, Mb_grid, lam_aa_new, lam_ab_new, T_new, H)
+    Mb_surf_new = mag_eq_b(Ma_grid, Mb_grid, lam_bb_new, lam_ba_new, T_new, H)
+    a_self_x_new, a_self_y_new = get_intersect(Ma_grid, Ma_surf_new)
+    b_self_x_new, b_self_y_new = get_intersect(Mb_grid, Mb_surf_new)
+    
+    Ma_plot1.set_xdata(a_self_x_new)
+    Ma_plot1.set_ydata(a_self_y_new)
+    Mb_plot1.set_xdata(b_self_x_new)
+    Mb_plot1.set_ydata(b_self_y_new)
     
     # Update axis 2
     lam_new = [lam_aa_new, lam_bb_new, lam_ab_new, lam_ba_new]

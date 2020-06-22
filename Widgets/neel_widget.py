@@ -30,6 +30,7 @@ ax1.set_yticklabels([])
 
 ax2.set_xlabel('Temperature (K)', fontsize=16)
 ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
+ax2.grid(color='grey', linestyle='dotted', linewidth=1)
 
 
 ### Constants
@@ -213,7 +214,7 @@ Mag_b /= 1e3
 
 Ma_plot2, = ax2.plot(Temp_vec, Mag_a, color='cyan')
 Mb_plot2, = ax2.plot(Temp_vec, Mag_b, color='orange')
-Mtot_plot2, = ax2.plot(Temp_vec, (Mag_a+Mag_b), color='white', ls='dotted')
+Mtot_plot2, = ax2.plot(Temp_vec, (Mag_a+Mag_b), color='white', linewidth=3)
 Mag_min = min( min(Mag_a), min(Mag_b) )
 Mag_max = max( max(Mag_a), max(Mag_b) )
 

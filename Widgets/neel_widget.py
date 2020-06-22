@@ -18,7 +18,7 @@ from scipy.constants import physical_constants as cst
 
 # Generate figure
 fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,11.25))
-plt.subplots_adjust(bottom=0.32)
+plt.subplots_adjust(bottom=0.4)
 plt.style.use('dark_background')
 #plt.style.use('lab')
 
@@ -38,7 +38,7 @@ numpoints = 500           # Number of points used in equation solver
 # Physical constants
 mu0 = cst['vacuum mag. permeability'][0]      # Permeability of free space
 me = cst['electron mass'][0]                  # Electron mass [kg]
-h = cst['planck constant'][0]                 # Planck constant [J-s]
+h = cst['Planck constant'][0]                 # Planck constant [J-s]
 hbar = cst['reduced Planck constant'][0]      # Reduced Planck constant
 e = cst['atomic unit of charge'][0]           # Elementary charge [C]
 muB = cst['Bohr magneton'][0]                 # Bohr Magneton
@@ -94,21 +94,21 @@ def get_intersect(z1, z2):
     return ( data[:, 0], data[:, 1] )
 
 
-def mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H):
-    arg = mu0 * mua_max * (H - lambda_aa * Ma - lambda_ab * Mb) / (kB*T)
+def mag_eq_a(Ma, Mb, lam_aa, lam_ab, T, H):
+    arg = mu0 * mua_max * (H - lam_aa * Ma - lam_ab * Mb) / (kB*T)
     return Ma_max * brillouin(arg, Ja)
 
 
-def mag_eq_b(Ma, Mb, lambda_bb, lambda_ba, T, H):
-    arg = mu0 * mua_max * (H - lambda_ba * Ma - lambda_bb * Mb) / (kB*T)
+def mag_eq_b(Ma, Mb, lam_bb, lam_ba, T, H):
+    arg = mu0 * mua_max * (H - lam_ba * Ma - lam_bb * Mb) / (kB*T)
     return Mb_max * brillouin(arg, Jb)
 
 
 def equations(mags, lam, T, H):
     Ma, Mb = mags
-    lambda_aa, lambda_bb, lambda_ab, lambda_ba = lam
-    eq1 = mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H) - Ma
-    eq2 = mag_eq_b(Ma, Mb, lambda_bb, lambda_ba, T, H) - Mb
+    lam_aa, lam_bb, lam_ab, lam_ba = lam
+    eq1 = mag_eq_a(Ma, Mb, lam_aa, lam_ab, T, H) - Ma
+    eq2 = mag_eq_b(Ma, Mb, lam_bb, lam_ba, T, H) - Mb
     return (eq1, eq2)
 
 
@@ -124,3 +124,58 @@ def get_mag(T_min, T_max, numpoints, lam, H):
         guess = [ma, mb]       # Update guess to last solution
         
     return (Tvec, Ma, Mb)
+
+
+### Sliders
+###______________________________________________________________
+
+# External field 
+H_loc = plt.axes([0.125, 0.30, 0.775, 0.03])
+H_init = 0.
+H_max = 10.   # mu0 H
+H_min = -10.  # mu0 H
+H_sl = Slider(H_loc, label=r'$\mu_0 H$', valmin=H_min, valmax=H_max, \
+              valinit=H_init)
+H_sl.label.set_size(16)
+
+# Coupling constants
+lam_aa_loc = plt.axes([0.125, 0.25, 0.775, 0.03])
+lam_aa_init = 0.
+lam_aa_max = 1000.
+lam_aa_min = 0.
+lam_aa_sl = Slider(lam_aa_loc, label=r'$\lambda_{aa}$', valmin=lam_aa_min, \
+                   valmax=lam_aa_max, valinit=lam_aa_init)
+lam_aa_sl.label.set_size(16)
+
+lam_bb_loc = plt.axes([0.125, 0.20, 0.775, 0.03])
+lam_bb_init = 0.
+lam_bb_max = 1000.
+lam_bb_min = 0.
+lam_bb_sl = Slider(lam_bb_loc, label=r'$\lambda_{bb}$', valmin=lam_bb_min, \
+                   valmax=lam_bb_max, valinit=lam_bb_init)
+lam_bb_sl.label.set_size(16)
+
+lam_ab_loc = plt.axes([0.125, 0.15, 0.775, 0.03])
+lam_ab_init = 500.
+lam_ab_max = 1000.
+lam_ab_min = 0.
+lam_ab_sl = Slider(lam_ab_loc, label=r'$\lambda_{ab}$', valmin=lam_ab_min, \
+                   valmax=lam_ab_max, valinit=lam_ab_init)
+lam_ab_sl.label.set_size(16)
+
+lam_ba_loc = plt.axes([0.125, 0.10, 0.775, 0.03])
+lam_ba_init = 500.
+lam_ba_max = 1000.
+lam_ba_min = 0.
+lam_ba_sl = Slider(lam_ba_loc, label=r'$\lambda_{ba}$', valmin=lam_ba_min, \
+                   valmax=lam_ba_max, valinit=lam_ba_init)
+lam_ba_sl.label.set_size(16)
+
+# Temperature
+T_loc = plt.axes([0.125, 0.05, 0.775, 0.03])
+T_init = 300.
+T_max = 600.
+T_min = 1.
+T_sl = Slider(T_loc, label=r'$T$ (K)', valmin=T_min, valmax=T_max, \
+              valinit=T_init)
+T_sl.label.set_size(16)

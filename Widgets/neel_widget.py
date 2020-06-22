@@ -92,3 +92,13 @@ def get_intersect(z1, z2):
     data = c.allsegs[0][0] # intersection contour
                            # Return (x,y) of intersect curve
     return ( data[:, 0], data[:, 1] )
+
+
+def mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H):
+    arg = mu0 * mua_max * (H - lambda_aa * Ma - lambda_ab * Mb) / (kB*T)
+    return Ma_max * brillouin(arg, Ja)
+
+
+def mag_eq_b(Ma, Mb, lambda_bb, lambda_ba, T, H):
+    arg = mu0 * mua_max * (H - lambda_ba * Ma - lambda_bb * Mb) / (kB*T)
+    return Mb_max * brillouin(arg, Jb)

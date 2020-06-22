@@ -80,3 +80,15 @@ def brillouin(y, J):
     B[~m] = ((2*J+1)**2/J**2/12-1/J**2/12)*y[~m]
     
     return B
+
+
+def get_intersect(z1, z2):
+    diff = np.sign(z2-z1) # array with distinct boundary
+                          # this boundary between -1's and 1's
+                          # is the intersection curve of the two 
+                          # surfaces z1 and z2
+                          
+    c = plt.contour(diff) 
+    data = c.allsegs[0][0] # intersection contour
+                           # Return (x,y) of intersect curve
+    return ( data[:, 0], data[:, 1] )

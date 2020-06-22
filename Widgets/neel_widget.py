@@ -36,20 +36,14 @@ ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
 numpoints = 500           # Number of points used in equation solver
 
 # Physical constants
-mu0 = cst['permittivity of free space'][0]       # Permeability of free space
-me = cst['electron mass'][0]     # Electron mass [kg]
-h = 6.62607015e-34        # Planck constant [J-s]
-hbar = h/(2*np.pi)        # Reduced Planck constant
-e = 1.602176634e-19       # Elementary charge [C]
-muB = 9.2740100783e-24    # Bohr Magneton
-g = 2.00231930436256      # G-factor
-kB = 1.380649e-23         # Boltzmann constant [J/K]
-
-# Coupling Constants 
-#lambda_aa = 735.84
-#lambda_ab = 1100.3
-#lambda_ba = 1100.3
-#lambda_bb = 344.59
+mu0 = cst['vacuum mag. permeability'][0]      # Permeability of free space
+me = cst['electron mass'][0]                  # Electron mass [kg]
+h = cst['planck constant'][0]                 # Planck constant [J-s]
+hbar = cst['reduced Planck constant'][0]      # Reduced Planck constant
+e = cst['atomic unit of charge'][0]           # Elementary charge [C]
+muB = cst['Bohr magneton'][0]                 # Bohr Magneton
+g = -cst['electron g factor'][0]              # G-factor
+kB = cst['Boltzmann constant'][0]             # Boltzmann constant [J/K]
 
 #Sublattice parameters
 Na = 8.441e27             # Moments per unit volume in sublattice A
@@ -60,6 +54,29 @@ ga = g                    # Lande g-factor for sublattice A
 gb = g                    # Lande g-factor for sublattice B
 
 mua_max = ga*muB*Ja       # Maximum moment on sublattice A
-Ma_max = Na*ga*muB*Ja     # Maximum moment on sublattice B
-mub_max = gb* muB*Jb      # Maximum magnetization of sublattice A
+Ma_max = Na*ga*muB*Ja     # Maximum magnetization of sublattice A
+mub_max = gb* muB*Jb      # Maximum moment on sublattice B
 Mb_max = Nb*gb*muB*Jb     # Maximum magnetization of sublattice B
+
+
+### Function definitions
+###______________________________________________________________
+
+def coth(x):
+    return 1/np.tanh(x)
+
+
+def brillouin(y, J):
+    eps = 1e-3 # should be small
+    y = np.array(y); B = np.empty(y.shape)
+    m = np.abs(y)>=eps # mask for selecting elements 
+                       # y[m] is data where |y|>=eps;
+                       # y[~m] is data where |y|<eps;
+    
+    B[m] = (2*J+1)/(2*J)*coth((2*J+1)*y[m]/(2*J)) - coth(y[m]/(2*J))/(2*J)
+    
+    # First order approximation for small |y|<eps
+    # Approximation avoids divergence at origin
+    B[~m] = ((2*J+1)**2/J**2/12-1/J**2/12)*y[~m]
+    
+    return B

@@ -134,7 +134,7 @@ H_loc = plt.axes([0.125, 0.30, 0.775, 0.03])
 H_init = 0.
 H_max = 10.   # mu0 H
 H_min = -10.  # mu0 H
-H_sl = Slider(H_loc, label=r'$\mu_0 H$', valmin=H_min, valmax=H_max, \
+H_sl = Slider(H_loc, label=r'$\mu_0 H$ (T)', valmin=H_min, valmax=H_max, \
               valinit=H_init)
 H_sl.label.set_size(16)
 
@@ -179,3 +179,37 @@ T_min = 1.
 T_sl = Slider(T_loc, label=r'$T$ (K)', valmin=T_min, valmax=T_max, \
               valinit=T_init)
 T_sl.label.set_size(16)
+
+
+### Plots
+###______________________________________________________________
+
+# Self-consistent subplot (Left, axis 1)
+Ma_scale = np.linspace(-Ma_max, Ma_max, numpoints)
+Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
+
+Ma_grid, Mb_grid = np.meshgrid(Ma_scale, Mb_scale)
+
+Ma_surf = mag_eq_a(Ma_grid, Mb_grid, lam_aa_init, lam_ab_init, T_init, H_init)
+Mb_surf = mag_eq_b(Ma_grid, Mb_grid, lam_bb_init, lam_ba_init, T_init, H_init)
+a_self_x, a_self_y = get_intersect(Ma_grid, Ma_surf)
+b_self_x, b_self_y = get_intersect(Mb_grid, Mb_surf)
+
+Ma_plot1, = ax1.plot(a_self_x, a_self_y, color='cyan')
+Mb_plot1, = ax1.plot(b_self_x, b_self_y, color='orange')
+
+# Magnetization-temperature subplot (Right, axis 2)
+# Magnetization is divided by 1000 to match plotting units of kA/m
+lam_init = [lam_aa_init, lam_bb_init, lam_ab_init, lam_ba_init]
+Temp_vec, Mag_a, Mag_b = get_mag(T_min, T_max, numpoints, lam_init, H_init)
+
+Ma_plot2, = ax2.plot(Temp_vec, Mag_a/1e3, color='cyan')
+Mb_plot2, = ax2.plot(Temp_vec, Mag_b/1e3, color='orange')
+Mtot_plot2, = ax2.plot(Temp_vec, (Mag_a+Mag_b)/1e3, color='white', ls='dotted')
+Mag_min = min( min(Mag_a), min(Mag_b) )/1e3
+Mag_max = max( max(Mag_a), max(Mag_b) )/1e3
+
+Temp_line, = ax2.plot([T_init,T_init], [Mag_min, Mag_max], color='red')
+
+ax1.legend([r'Sublattice a', 'Sublattice b'], loc=1, fontsize=16)
+ax2.legend([r'Sublattice a', 'Sublattice b', 'Total'], loc=1, fontsize=16)

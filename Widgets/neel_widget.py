@@ -249,8 +249,8 @@ def update(val):
                            H_new)
     Mb_surf_new = mag_eq_b(Ma_grid, Mb_grid, lam_bb_new, lam_ba_new, T_new, \
                            H_new)
-    Ma_x_new, Ma_y_new = get_intersect(Ma_grid, Ma_surf_new)
-    Mb_x_new, Mb_y_new = get_intersect(Mb_grid, Mb_surf_new)
+    Ma_x_new, Ma_y_new = get_intersect(Ma_grid, Ma_surf_new, Ma_grid, Mb_grid)
+    Mb_x_new, Mb_y_new = get_intersect(Mb_grid, Mb_surf_new, Ma_grid, Mb_grid)
     Ma_x_new /= 1e3
     Mb_x_new /= 1e3
     Ma_y_new /= 1e3

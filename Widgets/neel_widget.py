@@ -23,10 +23,10 @@ plt.style.use('dark_background')
 #plt.style.use('lab')
 
 # Label axes
-ax1.set_xlabel(r'$M_{b}$ (Arb. Units)', fontsize=16)
-ax1.set_ylabel(r'$M_{a}$ (Arb. Units)', fontsize=16)
-ax1.set_xticklabels([])
-ax1.set_yticklabels([])
+ax1.set_xlabel(r'$M_{b}$ (kA m$^{-1}$)', fontsize=16)
+ax1.set_ylabel(r'$M_{a}$ (kA m$^{-1}$)', fontsize=16)
+#ax1.set_xticklabels([])
+#ax1.set_yticklabels([])
 
 ax2.set_xlabel('Temperature (K)', fontsize=16)
 ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
@@ -85,16 +85,18 @@ def brillouin(y, J):
     return B
 
 
-def get_intersect(z1, z2):
+def get_intersect(z1, z2, x, y):
     diff = np.sign(z2-z1) # array with distinct boundary
                           # this boundary between -1's and 1's
                           # is the intersection curve of the two 
                           # surfaces z1 and z2
                           
-    c = plt.contour(diff) 
+    c = plt.contour(x, y, diff) 
     data = c.allsegs[0][0] # intersection contour
-                           # Return (x,y) of intersect curve
-    return ( data[:, 0], data[:, 1] )
+    x = data[:, 0]
+    y = data[:, 1]
+                           # Return (x,y) of intersect curve              
+    return (x, y)
 
 
 def mag_eq_a(Ma, Mb, lam_aa, lam_ab, T, H):
@@ -190,7 +192,7 @@ T_sl.label.set_size(16)
 # Self-consistent subplot (Left, axis 1)
 Ma_scale = np.linspace(-Ma_max, Ma_max, numpoints)
 Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
-
+all
 Ma_grid, Mb_grid = np.meshgrid(Ma_scale, Mb_scale)
 
 # Brillouin function surface
@@ -199,11 +201,15 @@ Mb_surf = mag_eq_b(Ma_grid, Mb_grid, lam_bb_init, lam_ba_init, T_init, H_init)
 
 # Self-consistent solutions
 # Intersect of Brillouin surfaces and Ma or Mb plane
-a_self_x, a_self_y = get_intersect(Ma_grid, Ma_surf)
-b_self_x, b_self_y = get_intersect(Mb_grid, Mb_surf)
+Ma_x, Ma_y = get_intersect(Ma_grid, Ma_surf, Ma_grid, Mb_grid)
+Mb_x, Mb_y = get_intersect(Mb_grid, Mb_surf, Ma_grid, Mb_grid)
+Ma_x /= 1e3
+Mb_x /= 1e3
+Ma_y /= 1e3
+Mb_y /= 1e3
 
-Ma_plot1, = ax1.plot(a_self_x, a_self_y, color='cyan')
-Mb_plot1, = ax1.plot(b_self_x, b_self_y, color='orange')
+Ma_plot1, = ax1.plot(Ma_x, Ma_y, color='cyan')
+Mb_plot1, = ax1.plot(Mb_x, Mb_y, color='orange')
 
 # Magnetization-temperature subplot (Right, axis 2)
 # Magnetization is divided by 1000 to match plotting units of kA/m
@@ -243,13 +249,17 @@ def update(val):
                            H_new)
     Mb_surf_new = mag_eq_b(Ma_grid, Mb_grid, lam_bb_new, lam_ba_new, T_new, \
                            H_new)
-    a_self_x_new, a_self_y_new = get_intersect(Ma_grid, Ma_surf_new)
-    b_self_x_new, b_self_y_new = get_intersect(Mb_grid, Mb_surf_new)
+    Ma_x_new, Ma_y_new = get_intersect(Ma_grid, Ma_surf_new)
+    Mb_x_new, Mb_y_new = get_intersect(Mb_grid, Mb_surf_new)
+    Ma_x_new /= 1e3
+    Mb_x_new /= 1e3
+    Ma_y_new /= 1e3
+    Mb_y_new /= 1e3
     
-    Ma_plot1.set_xdata(a_self_x_new)
-    Ma_plot1.set_ydata(a_self_y_new)
-    Mb_plot1.set_xdata(b_self_x_new)
-    Mb_plot1.set_ydata(b_self_y_new)
+    Ma_plot1.set_xdata(Ma_x_new)
+    Ma_plot1.set_ydata(Ma_y_new)
+    Mb_plot1.set_xdata(Mb_x_new)
+    Mb_plot1.set_ydata(Mb_y_new)
     
     # Update axis 2
     lam_new = [lam_aa_new, lam_bb_new, lam_ab_new, lam_ba_new]

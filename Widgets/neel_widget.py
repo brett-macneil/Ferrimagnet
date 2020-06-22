@@ -190,8 +190,12 @@ Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
 
 Ma_grid, Mb_grid = np.meshgrid(Ma_scale, Mb_scale)
 
+# Brillouin function surface
 Ma_surf = mag_eq_a(Ma_grid, Mb_grid, lam_aa_init, lam_ab_init, T_init, H_init)
 Mb_surf = mag_eq_b(Ma_grid, Mb_grid, lam_bb_init, lam_ba_init, T_init, H_init)
+
+# Self-consistent solutions
+# Intersect of Brillouin surfaces and Ma or Mb plane
 a_self_x, a_self_y = get_intersect(Ma_grid, Ma_surf)
 b_self_x, b_self_y = get_intersect(Mb_grid, Mb_surf)
 
@@ -202,14 +206,71 @@ Mb_plot1, = ax1.plot(b_self_x, b_self_y, color='orange')
 # Magnetization is divided by 1000 to match plotting units of kA/m
 lam_init = [lam_aa_init, lam_bb_init, lam_ab_init, lam_ba_init]
 Temp_vec, Mag_a, Mag_b = get_mag(T_min, T_max, numpoints, lam_init, H_init)
+Mag_a /= 1e3
+Mag_b /= 1e3
 
-Ma_plot2, = ax2.plot(Temp_vec, Mag_a/1e3, color='cyan')
-Mb_plot2, = ax2.plot(Temp_vec, Mag_b/1e3, color='orange')
-Mtot_plot2, = ax2.plot(Temp_vec, (Mag_a+Mag_b)/1e3, color='white', ls='dotted')
-Mag_min = min( min(Mag_a), min(Mag_b) )/1e3
-Mag_max = max( max(Mag_a), max(Mag_b) )/1e3
+Ma_plot2, = ax2.plot(Temp_vec, Mag_a, color='cyan')
+Mb_plot2, = ax2.plot(Temp_vec, Mag_b, color='orange')
+Mtot_plot2, = ax2.plot(Temp_vec, (Mag_a+Mag_b), color='white', ls='dotted')
+Mag_min = min( min(Mag_a), min(Mag_b) )
+Mag_max = max( max(Mag_a), max(Mag_b) )
 
 Temp_line, = ax2.plot([T_init,T_init], [Mag_min, Mag_max], color='red')
 
 ax1.legend([r'Sublattice a', 'Sublattice b'], loc=1, fontsize=16)
 ax2.legend([r'Sublattice a', 'Sublattice b', 'Total'], loc=1, fontsize=16)
+
+
+### Updates
+###______________________________________________________________
+
+def update(val):
+    # Pull val from sliders
+    H_new = H_sl.val/mu0
+    
+    lam_aa_new = lam_aa_sl.val
+    lam_bb_new = lam_bb_sl.val
+    lam_ab_new = lam_ab_sl.val
+    lam_ba_new = lam_ba_sl.val
+    
+    T_new = T_sl.val
+    
+    # Update axis 1
+    Ma_surf_new = mag_eq_a(Ma_grid, Mb_grid, lam_aa_new, lam_ab_new, T_new, \
+                           H_new)
+    Mb_surf_new = mag_eq_b(Ma_grid, Mb_grid, lam_bb_new, lam_ba_new, T_new, \
+                           H_new)
+    a_self_x_new, a_self_y_new = get_intersect(Ma_grid, Ma_surf_new)
+    b_self_x_new, b_self_y_new = get_intersect(Mb_grid, Mb_surf_new)
+    
+    Ma_plot1.set_xdata(a_self_x_new)
+    Ma_plot1.set_ydata(a_self_y_new)
+    Mb_plot1.set_xdata(b_self_x_new)
+    Mb_plot1.set_ydata(b_self_y_new)
+    
+    # Update axis 2
+    lam_new = [lam_aa_new, lam_bb_new, lam_ab_new, lam_ba_new]
+    _, Mag_a_new, Mag_b_new = get_mag(T_min, T_max, numpoints, lam_new, H_new)
+    Mag_a_new /= 1e3
+    Mag_b_new /= 1e3
+    Mag_min_new = min( min(Mag_a_new), min(Mag_b_new) )
+    Mag_max_new = max( max(Mag_a_new), max(Mag_b_new) )
+    
+    Ma_plot2.set_ydata(Mag_a_new)
+    Mb_plot2.set_ydata(Mag_b_new)
+    Mtot_plot2.set_ydata((Mag_a_new+Mag_b_new))
+    Temp_line.set_xdata([T_new,T_new])
+    Temp_line.set_ydata([Mag_min_new, Mag_max_new])
+    ax2.set_ylim([Mag_min_new*1.1, Mag_max_new*1.1])
+    
+    return None
+    
+
+H_sl.on_changed(update)
+lam_aa_sl.on_changed(update)
+lam_bb_sl.on_changed(update)
+lam_ab_sl.on_changed(update)
+lam_ba_sl.on_changed(update)
+T_sl.on_changed(update)
+fig.canvas.draw_idle()
+fig.show()

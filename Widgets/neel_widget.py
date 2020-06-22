@@ -102,3 +102,25 @@ def mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H):
 def mag_eq_b(Ma, Mb, lambda_bb, lambda_ba, T, H):
     arg = mu0 * mua_max * (H - lambda_ba * Ma - lambda_bb * Mb) / (kB*T)
     return Mb_max * brillouin(arg, Jb)
+
+
+def equations(mags, lam, T, H):
+    Ma, Mb = mags
+    lambda_aa, lambda_bb, lambda_ab, lambda_ba = lam
+    eq1 = mag_eq_a(Ma, Mb, lambda_aa, lambda_ab, T, H) - Ma
+    eq2 = mag_eq_b(Ma, Mb, lambda_bb, lambda_ba, T, H) - Mb
+    return (eq1, eq2)
+
+
+def get_mag(T_min, T_max, numpoints, lam, H):
+    Tvec = np.linspace(T_min, T_max, numpoints)
+    Ma = np.empty(numpoints)
+    Mb = np.empty(numpoints)
+    guess = [-Ma_max, Mb_max] # Initial guess
+    
+    for i in range(numpoints):
+        ma, mb = fsolve(equations, x0=guess, args=(lam, Tvec[i], H))
+        Ma[i] = ma; Mb[i] = mb # Update solution
+        guess = [ma, mb]       # Update guess to last solution
+        
+    return (Tvec, Ma, Mb)

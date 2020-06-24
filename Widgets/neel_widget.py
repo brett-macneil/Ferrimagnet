@@ -17,7 +17,7 @@ from scipy.constants import physical_constants as cst
 ###______________________________________________________________
 
 # Generate figure
-fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(15,11.25))
+fig, [ax1, ax2] = plt.subplots(1, 2)
 plt.subplots_adjust(bottom=0.4)
 plt.style.use('dark_background')
 #plt.style.use('lab')
@@ -25,8 +25,7 @@ plt.style.use('dark_background')
 # Label axes
 ax1.set_xlabel(r'$M_{b}$ (kA m$^{-1}$)', fontsize=16)
 ax1.set_ylabel(r'$M_{a}$ (kA m$^{-1}$)', fontsize=16)
-#ax1.set_xticklabels([])
-#ax1.set_yticklabels([])
+ax1.grid(color='grey', linestyle='dotted', linewidth=1)
 
 ax2.set_xlabel('Temperature (K)', fontsize=16)
 ax2.set_ylabel(r'Magnetization (kA m$^{-1}$)', fontsize=16)
@@ -121,12 +120,12 @@ def get_mag(T_min, T_max, numpoints, lam, H):
     Tvec = np.linspace(T_min, T_max, numpoints)
     Ma = np.empty(numpoints)
     Mb = np.empty(numpoints)
-    guess = [-Ma_max, Mb_max] # Initial guess
+    guess = [-Mb_max, Ma_max] # Initial guess
     
     for i in range(numpoints):
-        ma, mb = fsolve(equations, x0=guess, args=(lam, Tvec[i], H))
+        mb, ma = fsolve(equations, x0=guess, args=(lam, Tvec[i], H))
         Ma[i] = ma; Mb[i] = mb # Update solution
-        guess = [ma, mb]       # Update guess to last solution
+        guess = [mb, ma]       # Update guess to last solution
         
     return (Tvec, Ma, Mb)
 
@@ -192,7 +191,7 @@ T_sl.label.set_size(16)
 # Self-consistent subplot (Left, axis 1)
 Ma_scale = np.linspace(-Ma_max, Ma_max, numpoints)
 Mb_scale = np.linspace(-Mb_max, Mb_max, numpoints)
-all
+
 Ma_grid, Mb_grid = np.meshgrid(Ma_scale, Mb_scale)
 
 # Brillouin function surface

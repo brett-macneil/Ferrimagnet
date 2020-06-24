@@ -59,3 +59,26 @@ mua_max = ga*muB*Ja       # Maximum moment on sublattice A
 Ma_max = Na*ga*muB*Ja     # Maximum magnetization of sublattice A
 mub_max = gb* muB*Jb      # Maximum moment on sublattice B
 Mb_max = Nb*gb*muB*Jb     # Maximum magnetization of sublattice B
+
+
+### Function definitions
+###______________________________________________________________
+
+def coth(x):
+    return 1/np.tanh(x)
+
+
+def brillouin(y, J):
+    eps = 1e-3 # should be small
+    y = np.array(y); B = np.empty(y.shape)
+    m = np.abs(y)>=eps # mask for selecting elements 
+                       # y[m] is data where |y|>=eps;
+                       # y[~m] is data where |y|<eps;
+    
+    B[m] = (2*J+1)/(2*J)*coth((2*J+1)*y[m]/(2*J)) - coth(y[m]/(2*J))/(2*J)
+    
+    # First order approximation for small |y|<eps
+    # Approximation avoids divergence at origin
+    B[~m] = ((2*J+1)**2/J**2/12-1/J**2/12)*y[~m]
+    
+    return B

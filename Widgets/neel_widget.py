@@ -89,8 +89,10 @@ def get_intersect(z1, z2, x, y):
                           # this boundary between -1's and 1's
                           # is the intersection curve of the two 
                           # surfaces z1 and z2
-                          
-    c = plt.contour(x, y, diff) 
+    a = plt.axes([0, 0, 0, 0])             
+    c = a.contour(x, y, diff)
+    a.cla()
+    
     data = c.allsegs[0][0] # intersection contour
     x = data[:, 0]
     y = data[:, 1]

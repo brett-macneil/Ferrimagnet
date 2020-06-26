@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Jun 22 2020
+Last updated Thu Jun 25 2020
 
-@author: Brett
+@author: Brett MacNeil
 """
 
 import numpy as np
@@ -18,6 +19,7 @@ from scipy.constants import physical_constants as cst
 
 # Generate figure
 fig, [ax1, ax2] = plt.subplots(1, 2)
+a = plt.axes([0,0,0,0])
 plt.subplots_adjust(bottom=0.4)
 plt.style.use('dark_background')
 #plt.style.use('lab')
@@ -89,9 +91,9 @@ def get_intersect(z1, z2, x, y):
                           # this boundary between -1's and 1's
                           # is the intersection curve of the two 
                           # surfaces z1 and z2
-    a = plt.axes([0, 0, 0, 0])             
+                                     
     c = a.contour(x, y, diff)
-    a.cla()
+    a.cla() # Clear dummy axes
     
     data = c.allsegs[0][0] # intersection contour
     x = data[:, 0]
